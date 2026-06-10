@@ -187,7 +187,7 @@ export function App() {
         fileName={fileName}
         packageCount={filePackages.length}
         useMock={useMock}
-        onToggleMock={() => setUseMock((v) => !v)}
+        onToggleMock={() => setUseMock((v: boolean) => !v)}
         onNewScan={handleNewScan}
       />
       <div className="flex flex-1 min-h-0">
