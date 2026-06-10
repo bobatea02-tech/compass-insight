@@ -19,7 +19,8 @@
  */
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
