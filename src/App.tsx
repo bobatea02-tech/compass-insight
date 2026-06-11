@@ -180,7 +180,7 @@ export function App() {
   return (
     <div
       className="h-screen flex flex-col"
-      style={{ background: '#080C14', color: '#E2E8F0', fontFamily: 'Inter, system-ui, sans-serif' }}
+      style={{ background: '#070707', color: '#F5F5F5', fontFamily: 'Inter, system-ui, sans-serif' }}
     >
       <TopBar
         status={conn.status}
@@ -194,7 +194,7 @@ export function App() {
         {/* Left panel */}
         <div
           className="w-[380px] shrink-0 overflow-y-auto p-4"
-          style={{ background: '#0D1829', borderRight: '1px solid rgba(148,163,184,0.12)' }}
+          style={{ background: '#0A0A0A', borderRight: '1px solid rgba(255,255,255,0.06)' }}
         >
           <ManifestUpload
             fileName={fileName}
@@ -231,11 +231,11 @@ export function App() {
         </div>
 
         {/* Right panel */}
-        <div className="flex-1 overflow-y-auto p-4" style={{ background: '#060D1A' }}>
+        <div className="flex-1 overflow-y-auto p-5" style={{ background: '#070707' }}>
           {errorMsg && (
             <div
-              className="mb-3 px-3 py-2 rounded flex items-center justify-between text-[12px]"
-              style={{ background: 'rgba(225,29,72,0.15)', color: '#FCA5A5', border: '1px solid rgba(225,29,72,0.3)' }}
+              className="mb-3 px-3 py-2 rounded-full flex items-center justify-between text-[12px] fade-in"
+              style={{ background: 'rgba(232,93,93,0.15)', color: '#E85D5D', border: '1px solid rgba(232,93,93,0.35)' }}
             >
               <span>{errorMsg}</span>
               <button onClick={() => setErrorMsg(null)} className="ml-2 opacity-70 hover:opacity-100">
@@ -246,12 +246,14 @@ export function App() {
 
           {!selectedPkg?.result ? (
             <div className="h-full flex flex-col items-center justify-center">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="1.5">
-                <circle cx="12" cy="12" r="9" />
-                <polygon points="14 10 10 14 12 12" />
-                <polygon points="14 10 16 8 12 12" />
-              </svg>
-              <div className="text-[12px] mt-3" style={{ color: '#64748B' }}>
+              <div className="float-soft">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#B8E84A" strokeWidth="1.5" style={{ filter: 'drop-shadow(0 0 12px rgba(184,232,74,0.4))' }}>
+                  <circle cx="12" cy="12" r="9" />
+                  <polygon points="14 10 10 14 12 12" fill="#B8E84A" />
+                  <polygon points="14 10 16 8 12 12" />
+                </svg>
+              </div>
+              <div className="text-[12px] mt-4" style={{ color: '#8A8A8A' }}>
                 Select a package to see its risk analysis
               </div>
             </div>
