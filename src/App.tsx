@@ -270,7 +270,7 @@ export function App() {
                 <div className="mt-3.5">
                   <div
                     className="uppercase mb-2"
-                    style={{ fontSize: 10, fontWeight: 500, color: '#64748B', letterSpacing: '0.15em' }}
+                    style={{ fontSize: 10, fontWeight: 600, color: '#8A8A8A', letterSpacing: '0.18em' }}
                   >
                     Historical Incidents
                   </div>
