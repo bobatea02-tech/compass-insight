@@ -52,11 +52,29 @@ export interface PackageState {
   result?: PackageResult;
 }
 
+// Neon palette from reference dashboard
+export const PALETTE = {
+  bg: '#070707',
+  surface: '#121212',
+  surfaceAlt: '#1A1A1A',
+  border: 'rgba(255,255,255,0.06)',
+  borderStrong: 'rgba(255,255,255,0.12)',
+  text: '#F5F5F5',
+  textMuted: '#8A8A8A',
+  textDim: '#5A5A5A',
+  lime: '#B8E84A',
+  limeSoft: 'rgba(184,232,74,0.14)',
+  orange: '#F59E42',
+  orangeSoft: 'rgba(245,158,66,0.14)',
+  red: '#E85D5D',
+  redSoft: 'rgba(232,93,93,0.14)',
+};
+
 export const RISK_COLORS: Record<RiskClass, { text: string; bg: string; border: string; label: string }> = {
-  Healthy: { text: '#00C8C8', bg: 'rgba(0,200,200,0.1)', border: 'rgba(0,200,200,0.2)', label: 'healthy' },
-  'At Risk': { text: '#FFB020', bg: 'rgba(255,176,32,0.1)', border: 'rgba(255,176,32,0.2)', label: 'at risk' },
-  Dying: { text: '#FF3535', bg: 'rgba(255,53,53,0.1)', border: 'rgba(255,53,53,0.25)', label: 'dying' },
-  Unknown: { text: '#64748B', bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.2)', label: 'unknown' },
+  Healthy: { text: PALETTE.lime, bg: PALETTE.limeSoft, border: 'rgba(184,232,74,0.35)', label: 'healthy' },
+  'At Risk': { text: PALETTE.orange, bg: PALETTE.orangeSoft, border: 'rgba(245,158,66,0.35)', label: 'at risk' },
+  Dying: { text: PALETTE.red, bg: PALETTE.redSoft, border: 'rgba(232,93,93,0.4)', label: 'dying' },
+  Unknown: { text: PALETTE.textMuted, bg: 'rgba(138,138,138,0.1)', border: 'rgba(138,138,138,0.2)', label: 'unknown' },
 };
 
 export function riskClassFromScore(score: number | null): RiskClass {
