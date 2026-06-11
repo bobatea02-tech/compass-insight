@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { PALETTE } from '@/types/compass';
 
 interface Props {
   text: string;
@@ -23,7 +24,6 @@ export function StreamingReport({ text, generating, complete, packageName, start
     });
   };
 
-  // Highlight first occurrence of packageName in rose
   const renderText = () => {
     if (!packageName || !text.includes(packageName)) {
       return <span>{text}</span>;
@@ -32,55 +32,60 @@ export function StreamingReport({ text, generating, complete, packageName, start
     return (
       <>
         <span>{text.slice(0, idx)}</span>
-        <span style={{ color: '#E11D48', fontWeight: 500 }}>{packageName}</span>
+        <span style={{ color: PALETTE.lime, fontWeight: 600 }}>{packageName}</span>
         <span>{text.slice(idx + packageName.length)}</span>
       </>
     );
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 fade-up">
       <div
-        className="uppercase mb-2"
-        style={{ fontSize: 10, fontWeight: 500, color: '#64748B', letterSpacing: '0.15em' }}
+        className="uppercase mb-2 flex items-center gap-2"
+        style={{ fontSize: 10, fontWeight: 600, color: PALETTE.textMuted, letterSpacing: '0.18em' }}
       >
-        <span style={{ color: '#4338CA' }}>✦</span> Analysis Report
+        <span className={generating ? 'spin-slow inline-block' : ''} style={{ color: PALETTE.lime }}>✦</span>
+        Analysis Report
       </div>
       <div
         ref={ref}
-        className="rounded-lg"
+        className="rounded-3xl"
         style={{
-          background: '#0F1F38',
-          border: '1px solid rgba(148,163,184,0.12)',
-          padding: 12,
-          maxHeight: 260,
+          background: PALETTE.surfaceAlt,
+          border: `1px solid ${PALETTE.border}`,
+          padding: 16,
+          maxHeight: 280,
           overflowY: 'auto',
         }}
       >
         {!started && (
-          <div className="text-[12px]" style={{ color: '#64748B' }}>
+          <div className="text-[12px]" style={{ color: PALETTE.textMuted }}>
             Select a package to start analysis
           </div>
         )}
         {started && generating && !text && (
-          <div className="text-[12px]" style={{ color: '#64748B' }}>
-            Generating report
-            <span className="inline-block animate-pulse">...</span>
+          <div className="text-[12px] flex items-center gap-2" style={{ color: PALETTE.textMuted }}>
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: PALETTE.lime, animation: 'blink 1s ease-in-out infinite' }}
+            />
+            Generating report<span className="inline-block animate-pulse">...</span>
           </div>
         )}
         {text && (
           <div
             className="font-mono text-[12px]"
-            style={{ color: '#CBD5E1', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
+            style={{ color: PALETTE.text, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
           >
             {renderText()}
             {!complete && (
               <span
                 className="inline-block align-middle ml-0.5"
                 style={{
-                  width: 2,
+                  width: 6,
                   height: 14,
-                  background: '#CBD5E1',
+                  background: PALETTE.lime,
+                  boxShadow: `0 0 8px ${PALETTE.lime}`,
                   animation: 'blink 1s step-end infinite',
                 }}
               />
@@ -91,16 +96,14 @@ export function StreamingReport({ text, generating, complete, packageName, start
       {complete && text && (
         <button
           onClick={handleCopy}
-          className="w-full mt-2 py-1.5 rounded text-[11px] transition-colors"
+          className="w-full mt-2 py-2 rounded-full text-[11px] font-medium transition-all hover:scale-[1.01]"
           style={{
-            background: 'transparent',
-            border: '1px solid rgba(148,163,184,0.2)',
-            color: '#CBD5E1',
+            background: copied ? PALETTE.limeSoft : PALETTE.surfaceAlt,
+            border: `1px solid ${copied ? 'rgba(184,232,74,0.4)' : PALETTE.border}`,
+            color: copied ? PALETTE.lime : PALETTE.text,
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = '#0F1F38')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
         >
-          {copied ? 'Copied ✓' : 'Copy report'}
+          {copied ? '✓ Copied to clipboard' : 'Copy report'}
         </button>
       )}
     </div>

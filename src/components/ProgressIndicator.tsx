@@ -1,3 +1,5 @@
+import { PALETTE } from '@/types/compass';
+
 interface Props {
   current: number;
   total: number;
@@ -8,17 +10,26 @@ export function ProgressIndicator({ current, total, currentPackage }: Props) {
   if (!currentPackage) return null;
   const pct = total > 0 ? (current / total) * 100 : 0;
   return (
-    <div className="mt-3">
-      <div className="text-[11px] mb-1" style={{ color: '#64748B' }}>
-        Analyzing <span className="font-mono">{currentPackage}</span>... ({current}/{total})
+    <div className="mt-4 fade-in">
+      <div className="flex items-center justify-between text-[11px] mb-1.5">
+        <span style={{ color: PALETTE.textMuted }}>
+          Analyzing <span className="font-mono" style={{ color: PALETTE.lime }}>{currentPackage}</span>
+        </span>
+        <span className="font-mono" style={{ color: PALETTE.textDim }}>
+          {current}/{total}
+        </span>
       </div>
-      <div className="w-full" style={{ height: 1, background: 'rgba(148,163,184,0.12)' }}>
+      <div
+        className="w-full rounded-full overflow-hidden"
+        style={{ height: 6, background: PALETTE.surfaceAlt }}
+      >
         <div
+          className="stripe-anim h-full rounded-full"
           style={{
             width: `${pct}%`,
-            height: '100%',
-            background: '#4338CA',
-            transition: 'width 300ms ease-out',
+            background: `linear-gradient(90deg, ${PALETTE.lime}, ${PALETTE.orange})`,
+            transition: 'width 350ms ease-out',
+            boxShadow: `0 0 12px rgba(184,232,74,0.45)`,
           }}
         />
       </div>

@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { PALETTE } from '@/types/compass';
 
 interface Props {
   fileName: string | null;
@@ -27,6 +28,7 @@ function parsePackages(content: string, filename: string): string[] {
 
 export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [drag, setDrag] = useState(false);
 
   const handleFile = (file: File) => {
     const reader = new FileReader();
@@ -40,23 +42,36 @@ export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Prop
   if (fileName) {
     return (
       <div
-        className="flex items-center justify-between px-3 py-2 rounded-lg"
-        style={{ background: '#0F1F38', border: '1px solid rgba(148,163,184,0.12)' }}
+        className="flex items-center justify-between px-4 py-3 rounded-2xl fade-in"
+        style={{
+          background: PALETTE.surfaceAlt,
+          border: `1px solid rgba(184,232,74,0.25)`,
+        }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-          </svg>
-          <span className="font-mono text-[12px] truncate" style={{ color: '#CBD5E1' }}>
-            {fileName}
-          </span>
-          <span className="text-[11px] shrink-0" style={{ color: '#64748B' }}>
-            {packageCount} pkgs
-          </span>
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: PALETTE.limeSoft }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={PALETTE.lime} strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <div className="font-mono text-[12px] truncate" style={{ color: PALETTE.text }}>
+              {fileName}
+            </div>
+            <div className="text-[10px]" style={{ color: PALETTE.textDim }}>
+              {packageCount} packages parsed
+            </div>
+          </div>
         </div>
-        <button onClick={onClear} className="p-1 rounded hover:bg-white/5">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2">
+        <button
+          onClick={onClear}
+          className="p-1.5 rounded-full transition-colors hover:bg-white/5"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={PALETTE.textMuted} strokeWidth="2">
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6" />
           </svg>
@@ -68,17 +83,22 @@ export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Prop
   return (
     <div
       onClick={() => inputRef.current?.click()}
-      onDragOver={(e) => e.preventDefault()}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDrag(true);
+      }}
+      onDragLeave={() => setDrag(false)}
       onDrop={(e) => {
         e.preventDefault();
+        setDrag(false);
         const f = e.dataTransfer.files[0];
         if (f) handleFile(f);
       }}
-      className="rounded-lg text-center cursor-pointer transition-colors"
+      className="rounded-2xl text-center cursor-pointer transition-all duration-200 fade-up"
       style={{
-        border: '1px dashed rgba(148,163,184,0.2)',
-        background: '#0F1F38',
-        padding: 20,
+        border: `1.5px dashed ${drag ? PALETTE.lime : 'rgba(255,255,255,0.12)'}`,
+        background: drag ? PALETTE.limeSoft : PALETTE.surfaceAlt,
+        padding: 28,
       }}
     >
       <input
@@ -91,24 +111,24 @@ export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Prop
           if (f) handleFile(f);
         }}
       />
-      <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#64748B"
-        strokeWidth="2"
-        className="mx-auto mb-2"
+      <div
+        className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center float-soft"
+        style={{
+          background: PALETTE.limeSoft,
+          border: `1px solid rgba(184,232,74,0.3)`,
+        }}
       >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="17 8 12 3 7 8" />
-        <line x1="12" y1="3" x2="12" y2="15" />
-      </svg>
-      <div className="text-[12px]" style={{ color: '#CBD5E1' }}>
-        Drop requirements.txt or package.json
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={PALETTE.lime} strokeWidth="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
       </div>
-      <div className="text-[11px] mt-1" style={{ color: '#64748B' }}>
-        or click to browse
+      <div className="text-[13px] font-medium" style={{ color: PALETTE.text }}>
+        Drop manifest file here
+      </div>
+      <div className="text-[11px] mt-1" style={{ color: PALETTE.textDim }}>
+        requirements.txt · package.json
       </div>
     </div>
   );
