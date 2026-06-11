@@ -102,6 +102,12 @@
   animation: stripeMove 1s linear infinite;
 }
 
+@keyframes tooltipPop {
+  from { opacity: 0; transform: translate(-50%, -4px) scale(0.96); }
+  to   { opacity: 1; transform: translate(-50%, 0)    scale(1); }
+}
+.tooltip-pop { animation: tooltipPop 160ms ease-out both; transform-origin: top center; }
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -110,3 +116,17 @@
   border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(184,232,74,0.3); }
+
+/* Respect prefers-reduced-motion globally */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .glow-lime, .glow-orange, .spin-slow, .float-soft,
+  .shimmer-bg, .stripe-anim, .tooltip-pop, .fade-in, .fade-up {
+    animation: none !important;
+  }
+}
