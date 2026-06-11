@@ -1,0 +1,41 @@
+# Compass — Cursor Rules
+
+## Repo ownership
+Frontend (Lovable — DO NOT TOUCH):
+  src/, public/, index.html, package.json,
+  vite.config.ts, tsconfig.json, tailwind.config.ts
+
+Backend (Cursor builds):
+  backend/
+
+Docs: docs/
+Scripts: scripts/
+
+## Architecture references
+API contract:        docs/Compass_Technical_Specs.md Section 4
+WebSocket protocol:  docs/Compass_Technical_Specs.md Section 5
+Database schema:     docs/Compass_Technical_Specs.md Section 6
+ML model spec:       docs/Compass_Technical_Specs.md Section 7
+All 18 features:     docs/Compass_Technical_Specs.md Section 7.3
+ChromaDB config:     docs/Compass_Technical_Specs.md Section 8
+Redis strategy:      docs/Compass_Technical_Specs.md Section 9
+Deployment:          docs/Compass_Technical_Specs.md Section 13
+
+## Rules
+- NEVER modify src/, public/, index.html, package.json
+- All GitHub API calls only through backend/core/github_client.github_get()
+- Feature names only from backend/ml/features.py — never hardcode
+- WebSocket messages must exactly match Section 5 of Technical Specs
+- All FastAPI functions use async/await — no sync blocking
+- Every public function has type annotations and one-line docstring
+- All secrets via os.environ["KEY"] only
+
+## CORS origins
+http://localhost:5173
+http://localhost:4173
+https://*.lovable.app
+os.environ.get("FRONTEND_URL", "")
+
+## Current task
+Day 1: Build FastAPI skeleton, GitHub API client, Redis cache, 
+database models, feature names list
