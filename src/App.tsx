@@ -280,9 +280,7 @@ export function App() {
               />
             </>
           )}
-          {!analysisStarted && (
-            <ScanHistory />
-          )}
+          <ScanHistory onSelect={handleRestoreHistory} />
         </div>
 
         {/* Right panel */}
