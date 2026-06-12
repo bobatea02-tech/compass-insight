@@ -8,7 +8,7 @@ import { PackageHeader } from '@/components/PackageHeader';
 import { ShapChart } from '@/components/ShapChart';
 import { IncidentCard } from '@/components/IncidentCard';
 import { StreamingReport } from '@/components/StreamingReport';
-import { ScanHistory, saveHistoryEntry } from '@/components/ScanHistory';
+import { ScanHistory, saveHistoryEntry, type HistoryEntry } from '@/components/ScanHistory';
 import { useMockWebSocket } from '@/hooks/useMockWebSocket';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import type { PackageResult, PackageState, WsMessage } from '@/types/compass';
