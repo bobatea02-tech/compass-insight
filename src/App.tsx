@@ -147,6 +147,22 @@ export function App() {
 
   const analysisStarted = packages.length > 0;
 
+  useEffect(() => {
+    if (complete && !savedHistoryRef.current && fileName && packages.length > 0) {
+      savedHistoryRef.current = true;
+      saveHistoryEntry({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        projectName: projectName.trim() || fileName.replace(/\.(txt|json)$/i, ''),
+        fileName,
+        packageCount: filePackages.length,
+        date: new Date().toISOString(),
+        healthy: stats.healthy,
+        atRisk: stats.atRisk,
+        dying: stats.dying,
+      });
+    }
+  }, [complete, fileName, projectName, filePackages.length, packages.length, stats]);
+
   const handleAnalyze = useCallback(() => {
     if (!fileContent || !fileName) return;
     conn.connect({ content: fileContent, filename: fileName });
