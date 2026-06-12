@@ -162,5 +162,6 @@ export function ManifestUpload({ fileName, packageCount, projectName, onProjectN
         requirements.txt · package.json
       </div>
     </div>
+    </>
   );
 }
