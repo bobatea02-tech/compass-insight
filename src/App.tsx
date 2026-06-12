@@ -238,6 +238,9 @@ export function App() {
               />
             </>
           )}
+          {!analysisStarted && (
+            <ScanHistory />
+          )}
         </div>
 
         {/* Right panel */}
