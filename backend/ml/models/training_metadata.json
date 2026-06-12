@@ -1,0 +1,7 @@
+{
+  "accuracy": 0.99,
+  "f1_macro": 0.9904,
+  "n_samples": 500,
+  "trained_at": "2026-06-12T07:19:20.054222+00:00",
+  "dataset_type": "synthetic"
+}
