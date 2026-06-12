@@ -5,10 +5,11 @@ interface Props {
   pkg: PackageState;
   selected: boolean;
   analyzing: boolean;
+  colIndex?: number;
   onClick: () => void;
 }
 
-export function PackageCard({ pkg, selected, analyzing, onClick }: Props) {
+export function PackageCard({ pkg, selected, analyzing, colIndex = 0, onClick }: Props) {
   const cls = pkg.result?.risk_class ?? 'Unknown';
   const c = RISK_COLORS[cls];
   const score = pkg.result?.risk_score;
