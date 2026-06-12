@@ -4,6 +4,8 @@ import { PALETTE } from '@/types/compass';
 interface Props {
   fileName: string | null;
   packageCount: number;
+  projectName: string;
+  onProjectNameChange: (name: string) => void;
   onFile: (content: string, filename: string, packages: string[]) => void;
   onClear: () => void;
 }
