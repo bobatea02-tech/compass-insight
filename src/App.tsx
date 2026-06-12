@@ -165,6 +165,7 @@ export function App() {
     setFileName(null);
     setFileContent('');
     setFilePackages([]);
+    setProjectName('');
     setPackages([]);
     setSelected(null);
     setUserSelected(false);
@@ -176,6 +177,7 @@ export function App() {
     setGenerating(false);
     setComplete(false);
     setErrorMsg(null);
+    savedHistoryRef.current = false;
   };
 
   const selectedPkg = packages.find((p) => p.name === selected);
