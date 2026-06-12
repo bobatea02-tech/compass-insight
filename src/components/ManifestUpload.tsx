@@ -28,7 +28,7 @@ function parsePackages(content: string, filename: string): string[] {
     .filter((l) => l && !l.startsWith('#'));
 }
 
-export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Props) {
+export function ManifestUpload({ fileName, packageCount, projectName, onProjectNameChange, onFile, onClear }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
 
