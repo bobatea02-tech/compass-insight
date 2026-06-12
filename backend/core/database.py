@@ -10,10 +10,24 @@ from sqlalchemy import Integer, Numeric, String, Text, TIMESTAMP, select, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.pool import NullPool
 
 logger = logging.getLogger(__name__)
 
-engine = create_async_engine(os.environ["DATABASE_URL"], echo=False)
+def _prepared_statement_name() -> str:
+    """Generate unique prepared statement names for pgbouncer compatibility."""
+    return f"__asyncpg_{uuid.uuid4()}__"
+
+
+engine = create_async_engine(
+    os.environ["DATABASE_URL"],
+    echo=False,
+    poolclass=NullPool,
+    connect_args={
+        "statement_cache_size": 0,
+        "prepared_statement_name_func": _prepared_statement_name,
+    },
+)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
@@ -91,9 +105,9 @@ async def save_analysis(
     at_risk_count: int,
     dying_count: int,
     skipped_count: int,
-    packages: list[dict[str, Any]],
-) -> uuid.UUID:
-    """Persist an analysis and its package results, returning the analysis ID."""
+    results: dict,
+) -> None:
+    """Save analysis results to PostgreSQL."""
     async with async_session() as session:
         analysis = Analysis(
             manifest_name=manifest_name,
@@ -107,26 +121,25 @@ async def save_analysis(
         session.add(analysis)
         await session.flush()
 
-        for pkg in packages:
+        for pkg_name, result in results.items():
+            if result.get("error"):
+                continue
             session.add(
                 PackageResult(
                     analysis_id=analysis.id,
-                    package_name=pkg["package_name"],
-                    github_repo=pkg.get("github_repo"),
+                    package_name=pkg_name,
+                    github_repo=result.get("github"),
                     ecosystem=ecosystem,
-                    risk_score=pkg.get("risk_score"),
-                    risk_class=pkg.get("risk_class"),
-                    confidence=pkg.get("confidence"),
-                    top_signals=pkg.get("top_signals"),
-                    shap_chart_data=pkg.get("shap_chart_data"),
-                    incidents=pkg.get("incidents"),
-                    raw_features=pkg.get("raw_features"),
-                    error_message=pkg.get("error_message"),
+                    risk_score=result.get("risk_score"),
+                    risk_class=result.get("risk_class"),
+                    confidence=result.get("confidence"),
+                    top_signals=result.get("top_signals"),
+                    shap_chart_data=result.get("shap_chart_data"),
+                    incidents=result.get("incidents"),
                 )
             )
 
         await session.commit()
-        return analysis.id
 
 
 async def get_history() -> list[dict[str, Any]]:

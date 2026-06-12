@@ -5,6 +5,7 @@ import logging
 from agents.incident_retriever import retrieve_incidents
 from agents.risk_classifier import classify_package
 from agents.signal_collector import collect_signals, resolve_package
+from core.github_client import GitHubRateLimitError
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,8 @@ async def analyse_package(package_name: str, ecosystem: str = "pypi") -> dict:
             "error": None,
         }
 
+    except GitHubRateLimitError:
+        raise
     except Exception as exc:
         logger.error("Analysis failed for %s: %s", package_name, exc)
         return _error_result(package_name, str(exc))

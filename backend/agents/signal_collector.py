@@ -9,7 +9,7 @@ import httpx
 import numpy as np
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from core.github_client import github_get
+from core.github_client import GitHubRateLimitError, github_get
 from ml.features import FEATURE_NAMES
 
 logger = logging.getLogger(__name__)
@@ -472,6 +472,8 @@ async def collect_signals(owner: str, repo: str) -> dict[str, float]:
 
         return {name: float(signals.get(name, DEFAULTS[name])) for name in FEATURE_NAMES}
 
+    except GitHubRateLimitError:
+        raise
     except Exception as exc:
         logger.error(
             "Signal collection failed owner=%s repo=%s error=%s", owner, repo, exc

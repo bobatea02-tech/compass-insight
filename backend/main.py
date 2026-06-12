@@ -6,12 +6,15 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import chromadb
+from dotenv import load_dotenv
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
+load_dotenv()
+
 from core.cache import ping_redis
 from core.database import init_db, ping_postgres
-from routes import analyze, history
+from routes import analyze, history, package
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +84,6 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.error("Database initialization failed error=%s", exc)
         _app_state["postgres_connected"] = False
-        raise
 
     _app_state["chromadb_connected"] = _check_chromadb()
 
@@ -102,6 +104,7 @@ app.add_middleware(
 
 app.include_router(analyze.router)
 app.include_router(history.router)
+app.include_router(package.router)
 
 
 @app.get("/health")
