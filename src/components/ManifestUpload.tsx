@@ -4,6 +4,8 @@ import { PALETTE } from '@/types/compass';
 interface Props {
   fileName: string | null;
   packageCount: number;
+  projectName: string;
+  onProjectNameChange: (name: string) => void;
   onFile: (content: string, filename: string, packages: string[]) => void;
   onClear: () => void;
 }
@@ -26,7 +28,7 @@ function parsePackages(content: string, filename: string): string[] {
     .filter((l) => l && !l.startsWith('#'));
 }
 
-export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Props) {
+export function ManifestUpload({ fileName, packageCount, projectName, onProjectNameChange, onFile, onClear }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
 
@@ -39,8 +41,34 @@ export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Prop
     reader.readAsText(file);
   };
 
+  const nameInput = (
+    <div className="mb-2">
+      <label
+        className="block uppercase mb-1"
+        style={{ fontSize: 9, fontWeight: 600, color: PALETTE.textMuted, letterSpacing: '0.18em' }}
+      >
+        Project name
+      </label>
+      <input
+        type="text"
+        value={projectName}
+        onChange={(e) => onProjectNameChange(e.target.value)}
+        placeholder="e.g. acme-api · my-side-project"
+        maxLength={80}
+        className="w-full rounded-xl px-3 py-2 text-[12px] font-mono outline-none transition-colors focus:border-[rgba(184,232,74,0.45)]"
+        style={{
+          background: PALETTE.surfaceAlt,
+          border: `1px solid ${PALETTE.border}`,
+          color: PALETTE.text,
+        }}
+      />
+    </div>
+  );
+
   if (fileName) {
     return (
+      <>
+      {nameInput}
       <div
         className="flex items-center justify-between px-4 py-3 rounded-2xl fade-in"
         style={{
@@ -77,10 +105,13 @@ export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Prop
           </svg>
         </button>
       </div>
+      </>
     );
   }
 
   return (
+    <>
+    {nameInput}
     <div
       onClick={() => inputRef.current?.click()}
       onDragOver={(e) => {
@@ -131,5 +162,6 @@ export function ManifestUpload({ fileName, packageCount, onFile, onClear }: Prop
         requirements.txt · package.json
       </div>
     </div>
+    </>
   );
 }

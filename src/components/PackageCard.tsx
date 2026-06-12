@@ -5,10 +5,11 @@ interface Props {
   pkg: PackageState;
   selected: boolean;
   analyzing: boolean;
+  colIndex?: number;
   onClick: () => void;
 }
 
-export function PackageCard({ pkg, selected, analyzing, onClick }: Props) {
+export function PackageCard({ pkg, selected, analyzing, colIndex = 0, onClick }: Props) {
   const cls = pkg.result?.risk_class ?? 'Unknown';
   const c = RISK_COLORS[cls];
   const score = pkg.result?.risk_score;
@@ -90,13 +91,14 @@ export function PackageCard({ pkg, selected, analyzing, onClick }: Props) {
       {showTooltip && (
         <div
           role="tooltip"
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-30 w-64 pointer-events-none tooltip-pop"
+          className={`absolute top-full mt-2 z-30 w-60 max-w-[80vw] pointer-events-none tooltip-pop ${colIndex === 0 ? 'left-0' : 'right-0'}`}
           style={{
             background: '#0A0A0A',
             border: `1px solid ${PALETTE.borderStrong}`,
             borderRadius: 12,
             padding: 10,
             boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+            transformOrigin: colIndex === 0 ? 'top left' : 'top right',
           }}
         >
           <div

@@ -8,6 +8,7 @@ import { PackageHeader } from '@/components/PackageHeader';
 import { ShapChart } from '@/components/ShapChart';
 import { IncidentCard } from '@/components/IncidentCard';
 import { StreamingReport } from '@/components/StreamingReport';
+import { ScanHistory, saveHistoryEntry, type HistoryEntry } from '@/components/ScanHistory';
 import { useMockWebSocket } from '@/hooks/useMockWebSocket';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import type { PackageResult, PackageState, WsMessage } from '@/types/compass';
@@ -19,6 +20,8 @@ export function App() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
   const [filePackages, setFilePackages] = useState<string[]>([]);
+  const [projectName, setProjectName] = useState<string>('');
+  const savedHistoryRef = useRef(false);
 
   const [packages, setPackages] = useState<PackageState[]>([]);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
@@ -144,6 +147,48 @@ export function App() {
 
   const analysisStarted = packages.length > 0;
 
+  useEffect(() => {
+    if (complete && !savedHistoryRef.current && fileName && packages.length > 0) {
+      savedHistoryRef.current = true;
+      saveHistoryEntry({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        projectName: projectName.trim() || fileName.replace(/\.(txt|json)$/i, ''),
+        fileName,
+        packageCount: filePackages.length,
+        date: new Date().toISOString(),
+        healthy: stats.healthy,
+        atRisk: stats.atRisk,
+        dying: stats.dying,
+        packages,
+        reportText,
+      });
+    }
+  }, [complete, fileName, projectName, filePackages.length, packages, stats, reportText]);
+
+  const handleRestoreHistory = useCallback((entry: HistoryEntry) => {
+    conn.close();
+    savedHistoryRef.current = true; // prevent re-save
+    setFileName(entry.fileName);
+    setFileContent(''); // empty so auto-analyze won't trigger
+    setFilePackages(Array((entry.packages ?? []).length).fill(''));
+    setProjectName(entry.projectName);
+    setPackages(entry.packages ?? []);
+    setReportText(entry.reportText ?? '');
+    reportRef.current = entry.reportText ?? '';
+    setReportStarted(Boolean(entry.reportText));
+    setComplete(true);
+    setGenerating(false);
+    setAnalyzing(null);
+    setProgress({ current: entry.packageCount, total: entry.packageCount });
+    setErrorMsg(null);
+    setUserSelected(true);
+    // Auto-select first risky package
+    const pick = (entry.packages ?? [])
+      .slice()
+      .sort((a, b) => (b.result?.risk_score ?? -1) - (a.result?.risk_score ?? -1))[0];
+    setSelected(pick?.name ?? null);
+  }, [conn]);
+
   const handleAnalyze = useCallback(() => {
     if (!fileContent || !fileName) return;
     conn.connect({ content: fileContent, filename: fileName });
@@ -162,6 +207,7 @@ export function App() {
     setFileName(null);
     setFileContent('');
     setFilePackages([]);
+    setProjectName('');
     setPackages([]);
     setSelected(null);
     setUserSelected(false);
@@ -173,6 +219,7 @@ export function App() {
     setGenerating(false);
     setComplete(false);
     setErrorMsg(null);
+    savedHistoryRef.current = false;
   };
 
   const selectedPkg = packages.find((p) => p.name === selected);
@@ -199,10 +246,15 @@ export function App() {
           <ManifestUpload
             fileName={fileName}
             packageCount={filePackages.length}
+            projectName={projectName}
+            onProjectNameChange={setProjectName}
             onFile={(content, name, pkgs) => {
               setFileContent(content);
               setFileName(name);
               setFilePackages(pkgs);
+              if (!projectName) {
+                setProjectName(name.replace(/\.(txt|json)$/i, ''));
+              }
             }}
             onClear={handleNewScan}
           />
@@ -228,6 +280,7 @@ export function App() {
               />
             </>
           )}
+          <ScanHistory onSelect={handleRestoreHistory} />
         </div>
 
         {/* Right panel */}
