@@ -20,6 +20,8 @@ export function App() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
   const [filePackages, setFilePackages] = useState<string[]>([]);
+  const [projectName, setProjectName] = useState<string>('');
+  const savedHistoryRef = useRef(false);
 
   const [packages, setPackages] = useState<PackageState[]>([]);
   const [analyzing, setAnalyzing] = useState<string | null>(null);
