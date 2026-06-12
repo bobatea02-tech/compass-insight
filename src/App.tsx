@@ -202,10 +202,15 @@ export function App() {
           <ManifestUpload
             fileName={fileName}
             packageCount={filePackages.length}
+            projectName={projectName}
+            onProjectNameChange={setProjectName}
             onFile={(content, name, pkgs) => {
               setFileContent(content);
               setFileName(name);
               setFilePackages(pkgs);
+              if (!projectName) {
+                setProjectName(name.replace(/\.(txt|json)$/i, ''));
+              }
             }}
             onClear={handleNewScan}
           />
