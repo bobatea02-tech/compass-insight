@@ -41,8 +41,34 @@ export function ManifestUpload({ fileName, packageCount, projectName, onProjectN
     reader.readAsText(file);
   };
 
+  const nameInput = (
+    <div className="mb-2">
+      <label
+        className="block uppercase mb-1"
+        style={{ fontSize: 9, fontWeight: 600, color: PALETTE.textMuted, letterSpacing: '0.18em' }}
+      >
+        Project name
+      </label>
+      <input
+        type="text"
+        value={projectName}
+        onChange={(e) => onProjectNameChange(e.target.value)}
+        placeholder="e.g. acme-api · my-side-project"
+        maxLength={80}
+        className="w-full rounded-xl px-3 py-2 text-[12px] font-mono outline-none transition-colors focus:border-[rgba(184,232,74,0.45)]"
+        style={{
+          background: PALETTE.surfaceAlt,
+          border: `1px solid ${PALETTE.border}`,
+          color: PALETTE.text,
+        }}
+      />
+    </div>
+  );
+
   if (fileName) {
     return (
+      <>
+      {nameInput}
       <div
         className="flex items-center justify-between px-4 py-3 rounded-2xl fade-in"
         style={{
