@@ -8,7 +8,7 @@ import { PackageHeader } from '@/components/PackageHeader';
 import { ShapChart } from '@/components/ShapChart';
 import { IncidentCard } from '@/components/IncidentCard';
 import { StreamingReport } from '@/components/StreamingReport';
-import { ScanHistory, saveHistoryEntry } from '@/components/ScanHistory';
+import { ScanHistory, saveHistoryEntry, type HistoryEntry } from '@/components/ScanHistory';
 import { useMockWebSocket } from '@/hooks/useMockWebSocket';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import type { PackageResult, PackageState, WsMessage } from '@/types/compass';
@@ -159,9 +159,35 @@ export function App() {
         healthy: stats.healthy,
         atRisk: stats.atRisk,
         dying: stats.dying,
+        packages,
+        reportText,
       });
     }
-  }, [complete, fileName, projectName, filePackages.length, packages.length, stats]);
+  }, [complete, fileName, projectName, filePackages.length, packages, stats, reportText]);
+
+  const handleRestoreHistory = useCallback((entry: HistoryEntry) => {
+    conn.close();
+    savedHistoryRef.current = true; // prevent re-save
+    setFileName(entry.fileName);
+    setFileContent(''); // empty so auto-analyze won't trigger
+    setFilePackages(Array((entry.packages ?? []).length).fill(''));
+    setProjectName(entry.projectName);
+    setPackages(entry.packages ?? []);
+    setReportText(entry.reportText ?? '');
+    reportRef.current = entry.reportText ?? '';
+    setReportStarted(Boolean(entry.reportText));
+    setComplete(true);
+    setGenerating(false);
+    setAnalyzing(null);
+    setProgress({ current: entry.packageCount, total: entry.packageCount });
+    setErrorMsg(null);
+    setUserSelected(true);
+    // Auto-select first risky package
+    const pick = (entry.packages ?? [])
+      .slice()
+      .sort((a, b) => (b.result?.risk_score ?? -1) - (a.result?.risk_score ?? -1))[0];
+    setSelected(pick?.name ?? null);
+  }, [conn]);
 
   const handleAnalyze = useCallback(() => {
     if (!fileContent || !fileName) return;
@@ -254,9 +280,7 @@ export function App() {
               />
             </>
           )}
-          {!analysisStarted && (
-            <ScanHistory />
-          )}
+          <ScanHistory onSelect={handleRestoreHistory} />
         </div>
 
         {/* Right panel */}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PALETTE } from '@/types/compass';
+import { PALETTE, type PackageState } from '@/types/compass';
 
 export interface HistoryEntry {
   id: string;
@@ -10,6 +10,8 @@ export interface HistoryEntry {
   healthy: number;
   atRisk: number;
   dying: number;
+  packages?: PackageState[];
+  reportText?: string;
 }
 
 const KEY = 'compass.scan.history';
