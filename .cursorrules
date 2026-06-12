@@ -37,6 +37,6 @@ https://*.lovable.app
 os.environ.get("FRONTEND_URL", "")
 
 ## Current task
-Day 3: Incident postmortem RAG corpus — ChromaDB setup,
-scrape postmortems, embed with sentence-transformers,
-index into ChromaDB, build incident retriever agent
+Day 4: LangChain agent pipeline — orchestrator,
+report generator with Gemini streaming,
+wire all four agents together
