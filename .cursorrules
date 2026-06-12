@@ -37,5 +37,6 @@ https://*.lovable.app
 os.environ.get("FRONTEND_URL", "")
 
 ## Current task
-Day 2: Signal Collector agent (18 features from GitHub API),
-XGBoost training pipeline, SHAP risk classifier
+Day 3: Incident postmortem RAG corpus — ChromaDB setup,
+scrape postmortems, embed with sentence-transformers,
+index into ChromaDB, build incident retriever agent
