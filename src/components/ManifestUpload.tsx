@@ -105,10 +105,13 @@ export function ManifestUpload({ fileName, packageCount, projectName, onProjectN
           </svg>
         </button>
       </div>
+      </>
     );
   }
 
   return (
+    <>
+    {nameInput}
     <div
       onClick={() => inputRef.current?.click()}
       onDragOver={(e) => {
