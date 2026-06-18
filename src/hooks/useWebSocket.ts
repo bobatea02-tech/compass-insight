@@ -9,7 +9,7 @@ export function useWebSocket(onMessage: (msg: WsMessage) => void) {
   cbRef.current = onMessage;
 
   const connect = useCallback((payload: { content: string; filename: string }) => {
-    const wsUrl = import.meta.env.VITE_WS_URL ?? 'ws://localhost:8000/ws/analyze';
+    const wsUrl = import.meta.env.VITE_WS_URL ?? 'wss://compass-insight-production.up.railway.app/ws/analyze';
     setStatus('connecting');
     try {
       const ws = new WebSocket(wsUrl);
