@@ -19,8 +19,10 @@ _SIMILARITY_THRESHOLD = 0.30
 _BATCH_SIZE = 50
 
 client = chromadb.PersistentClient(path=_CHROMA_PATH)
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-
+embedding_model = SentenceTransformer("all-MiniLM-L6-v2",
+    device="cpu",
+    cache_folder="/tmp/models"
+)
 
 def get_collection() -> chromadb.Collection:
     """Return or create the incident postmortems ChromaDB collection."""

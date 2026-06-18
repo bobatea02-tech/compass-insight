@@ -16,6 +16,9 @@ from core.cache import ping_redis
 from core.database import init_db, ping_postgres
 from routes import analyze, history, package
 
+import gc
+gc.collect()  # Force garbage collection after startup
+
 logger = logging.getLogger(__name__)
 
 VERSION = "1.0.0"
