@@ -12,4 +12,14 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Force-enable nitro outside the Lovable sandbox and target Cloudflare Pages.
+  // Inside the Lovable sandbox these options are ignored — the sandbox always
+  // builds the cloudflare-module preset into ./dist for its own preview.
+  nitro: {
+    preset: "cloudflare-pages",
+    cloudflare: {
+      nodeCompat: true,
+      deployConfig: true,
+    },
+  },
 });
