@@ -1,0 +1,8 @@
+fastapi
+langchain
+httpx
+event-stream
+core-js
+pydantic
+left-pad
+sqlalchemy

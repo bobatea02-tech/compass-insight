@@ -1,0 +1,8 @@
+fastapi
+pydantic
+httpx
+langchain
+sqlalchemy
+redis
+uvicorn
+pytest
