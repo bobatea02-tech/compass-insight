@@ -71,7 +71,7 @@ export function PackageCard({ pkg, selected, analyzing, colIndex = 0, onClick }:
             />
           )}
           <span style={{ color: accentText, letterSpacing: '0.05em' }} className="uppercase">
-            {loading ? (analyzing ? 'analyzing' : 'queued') : c.label}
+            {loading ? (analyzing ? 'analyzing' : 'queued') : displayRiskClass(cls).toLowerCase()}
           </span>
           {!loading && incidentCount > 0 && (
             <span
