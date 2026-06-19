@@ -1,4 +1,5 @@
-import { PALETTE, RISK_COLORS, type PackageResult } from '@/types/compass';
+import { useState } from 'react';
+import { PALETTE, RISK_COLORS, displayRiskClass, type PackageResult } from '@/types/compass';
 
 interface Props {
   name: string;
@@ -8,6 +9,20 @@ interface Props {
 export function PackageHeader({ name, result }: Props) {
   const c = RISK_COLORS[result.risk_class];
   const incidentCount = result.incidents.length;
+  const label = displayRiskClass(result.risk_class);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const top = result.top_signals?.[0]?.human_readable ?? 'no signal data';
+    const text = `${name}: ${label} (${result.risk_score ?? '—'}/100)
+Top signal: ${top}
+GitHub: ${result.github ?? 'n/a'}`;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1000);
+    });
+  };
+
   return (
     <div
       className="rounded-3xl flex items-start justify-between gap-4 mb-4 fade-up"
@@ -18,9 +33,29 @@ export function PackageHeader({ name, result }: Props) {
         boxShadow: `0 0 40px ${c.text}15`,
       }}
     >
-      <div className="min-w-0">
-        <div className="font-mono break-all" style={{ fontSize: 20, fontWeight: 600, color: PALETTE.text }}>
-          {name}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-start gap-2">
+          <div className="font-mono break-all flex-1" style={{ fontSize: 20, fontWeight: 600, color: PALETTE.text }}>
+            {name}
+          </div>
+          <button
+            onClick={handleCopy}
+            title="Copy summary"
+            aria-label="Copy summary"
+            className="shrink-0 p-1.5 rounded-md transition-colors hover:bg-white/5 print-hide"
+            style={{ color: copied ? PALETTE.lime : PALETTE.textMuted }}
+          >
+            {copied ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            )}
+          </button>
         </div>
         {result.github && (
           <div className="flex items-center gap-1.5 mt-2">
@@ -76,7 +111,7 @@ export function PackageHeader({ name, result }: Props) {
             border: `1px solid ${c.border}`,
           }}
         >
-          {result.risk_class}
+          {label}
         </div>
       </div>
     </div>
