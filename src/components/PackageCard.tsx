@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PALETTE, RISK_COLORS, type PackageState } from '@/types/compass';
+import { PALETTE, RISK_COLORS, displayRiskClass, type PackageState } from '@/types/compass';
 
 interface Props {
   pkg: PackageState;
