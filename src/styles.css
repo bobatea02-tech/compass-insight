@@ -130,3 +130,43 @@
     animation: none !important;
   }
 }
+
+/* Print: show only the analysis report */
+.print-only-block { display: none; }
+
+@media print {
+  @page { margin: 18mm; }
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  body * { visibility: hidden !important; }
+  .print-hide, .print-hide * { display: none !important; }
+
+  .print-report, .print-report * { visibility: visible !important; }
+  .print-report {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .print-report-body {
+    background: #fff !important;
+    border: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  .print-report-text {
+    color: #000 !important;
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    font-size: 12pt !important;
+    line-height: 1.6 !important;
+    white-space: pre-wrap !important;
+  }
+  .print-only-block { display: block !important; color: #000; }
+}
+
