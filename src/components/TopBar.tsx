@@ -5,23 +5,21 @@ interface Props {
   status: ConnStatus;
   fileName: string | null;
   packageCount: number;
-  useMock: boolean;
-  onToggleMock: () => void;
   onNewScan: () => void;
+  onOpenHistory: () => void;
 }
 
-export function TopBar({
-  status,
-  fileName,
-  packageCount,
-  useMock,
-  onToggleMock,
-  onNewScan,
-}: Props) {
-  const connected = status === 'open';
+export function TopBar({ status, fileName, packageCount, onNewScan, onOpenHistory }: Props) {
+  const conn =
+    status === 'open'
+      ? { color: PALETTE.lime, label: 'live', glow: true }
+      : status === 'connecting'
+      ? { color: PALETTE.orange, label: 'connecting…', glow: true }
+      : { color: PALETTE.red, label: 'offline', glow: false };
+
   return (
     <div
-      className="h-14 flex items-center justify-between px-4 shrink-0 fade-in"
+      className="h-14 flex items-center justify-between px-4 shrink-0 fade-in print-hide"
       style={{ background: '#0A0A0A', borderBottom: `1px solid ${PALETTE.border}` }}
     >
       <div className="flex items-center gap-3">
@@ -64,36 +62,40 @@ export function TopBar({
           </span>
         )}
 
-        <button
-          onClick={onToggleMock}
-          className="px-3 py-1.5 rounded-full text-[11px] font-medium transition-all hover:scale-105"
-          style={
-            useMock
-              ? { background: PALETTE.surface, color: PALETTE.textMuted, border: `1px solid ${PALETTE.border}` }
-              : { background: PALETTE.limeSoft, color: PALETTE.lime, border: `1px solid rgba(184,232,74,0.4)` }
-          }
-        >
-          {useMock ? 'Mock' : 'Live'}
-        </button>
-
         <div
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
-          style={
-            connected
-              ? { background: PALETTE.limeSoft, color: PALETTE.lime, border: `1px solid rgba(184,232,74,0.35)` }
-              : { background: PALETTE.surface, color: PALETTE.textMuted, border: `1px solid ${PALETTE.border}` }
-          }
+          style={{
+            background: PALETTE.surface,
+            color: conn.color,
+            border: `1px solid ${PALETTE.border}`,
+          }}
         >
           <span
             className="w-1.5 h-1.5 rounded-full"
             style={{
-              background: connected ? PALETTE.lime : PALETTE.textDim,
-              boxShadow: connected ? `0 0 8px ${PALETTE.lime}` : 'none',
-              animation: connected ? 'blink 1.6s ease-in-out infinite' : undefined,
+              background: conn.color,
+              boxShadow: conn.glow ? `0 0 8px ${conn.color}` : 'none',
+              animation: conn.glow ? 'blink 1.6s ease-in-out infinite' : undefined,
             }}
           />
-          <span style={{ fontSize: 11 }}>{connected ? 'live' : 'offline'}</span>
+          <span style={{ fontSize: 11 }}>{conn.label}</span>
         </div>
+
+        <button
+          onClick={onOpenHistory}
+          className="px-3 py-1.5 rounded-full text-[11px] font-medium transition-all hover:scale-105 flex items-center gap-1.5"
+          style={{
+            background: PALETTE.surface,
+            color: PALETTE.text,
+            border: `1px solid ${PALETTE.border}`,
+          }}
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="9" />
+            <polyline points="12 7 12 12 15 14" />
+          </svg>
+          History
+        </button>
 
         <button
           onClick={onNewScan}

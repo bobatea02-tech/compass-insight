@@ -105,6 +105,9 @@ export function ManifestUpload({ fileName, packageCount, projectName, onProjectN
           </svg>
         </button>
       </div>
+      <div className="text-center mt-2 text-[10px]" style={{ color: PALETTE.textDim, letterSpacing: '0.08em' }}>
+        Press <span className="font-mono" style={{ color: PALETTE.textMuted }}>Enter</span> to start scan
+      </div>
       </>
     );
   }

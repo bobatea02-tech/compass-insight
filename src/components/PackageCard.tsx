@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PALETTE, RISK_COLORS, type PackageState } from '@/types/compass';
+import { PALETTE, RISK_COLORS, displayRiskClass, type PackageState } from '@/types/compass';
 
 interface Props {
   pkg: PackageState;
@@ -71,7 +71,7 @@ export function PackageCard({ pkg, selected, analyzing, colIndex = 0, onClick }:
             />
           )}
           <span style={{ color: accentText, letterSpacing: '0.05em' }} className="uppercase">
-            {loading ? (analyzing ? 'analyzing' : 'queued') : c.label}
+            {loading ? (analyzing ? 'analyzing' : 'queued') : displayRiskClass(cls).toLowerCase()}
           </span>
           {!loading && incidentCount > 0 && (
             <span
