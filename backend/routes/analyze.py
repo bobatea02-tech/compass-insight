@@ -3,6 +3,8 @@
 import asyncio
 import json
 import logging
+import re
+import tomllib
 import uuid
 
 from fastapi import APIRouter, File, UploadFile, WebSocket, WebSocketDisconnect
@@ -11,27 +13,73 @@ from fastapi.responses import JSONResponse
 from agents.orchestrator import analyse_package
 from agents.report_generator import generate_report_stream
 from core.database import save_analysis
-from core.github_client import GitHubRateLimitError
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
+def _detect_ecosystem(content: str, filename: str) -> str:
+    """Detect package ecosystem from filename and manifest content."""
+    if filename.endswith("package.json"):
+        ecosystem = "npm"
+    elif filename.endswith(".toml"):
+        ecosystem = "pypi"
+    elif filename.endswith(".txt"):
+        ecosystem = "pypi"
+    else:
+        ecosystem = "pypi"
+
+    if '"dependencies":' in content or "'dependencies':" in content:
+        ecosystem = "npm"
+    elif "==" in content or ">=" in content:
+        ecosystem = "pypi"
+
+    return ecosystem
+
+
+def _parse_toml_packages(content: str) -> list[str]:
+    """Extract dependency names from pyproject.toml content."""
+    try:
+        data = tomllib.loads(content.encode())
+    except Exception:
+        return []
+
+    packages: list[str] = []
+    project_deps = data.get("project", {}).get("dependencies", [])
+    if isinstance(project_deps, list):
+        for dep in project_deps:
+            name = re.split(r"[>=<~!\[]", str(dep))[0].strip()
+            if name:
+                packages.append(name)
+
+    poetry_deps = data.get("tool", {}).get("poetry", {}).get("dependencies", {})
+    if isinstance(poetry_deps, dict):
+        for name in poetry_deps:
+            if name != "python":
+                packages.append(name)
+
+    return packages
+
+
 def parse_manifest(content: str, filename: str) -> tuple[list[str], str]:
     """Parse requirements.txt or package.json into (package_names, ecosystem)."""
     packages: list[str] = []
-    ecosystem = "pypi"
+    ecosystem = _detect_ecosystem(content, filename)
 
     try:
-        if filename.endswith("package.json"):
-            ecosystem = "npm"
+        if filename.endswith("package.json") or (
+            ecosystem == "npm" and '"dependencies":' in content
+        ):
             data = json.loads(content)
             deps = {
                 **data.get("dependencies", {}),
                 **data.get("devDependencies", {}),
             }
             packages = list(deps.keys())
+
+        elif filename.endswith(".toml"):
+            packages = _parse_toml_packages(content)
 
         else:
             for line in content.splitlines():
@@ -184,7 +232,9 @@ async def analyze_websocket(websocket: WebSocket):
             1 for r in results.values() if r.get("risk_class") == "At Risk"
         )
         skipped = sum(
-            1 for r in results.values() if r.get("risk_class") == "Unknown"
+            1
+            for r in results.values()
+            if r.get("risk_class") in ("Unknown", "Unresolved")
         )
 
         analysis_id = str(uuid.uuid4())
@@ -219,17 +269,6 @@ async def analyze_websocket(websocket: WebSocket):
 
     except WebSocketDisconnect:
         pass
-    except GitHubRateLimitError:
-        try:
-            await websocket.send_json(
-                {
-                    "type": "error",
-                    "message": "GitHub API rate limit exceeded. Please try again later.",
-                    "code": "GITHUB_RATE_LIMITED",
-                }
-            )
-        except Exception:
-            pass
     except Exception as exc:
         try:
             await websocket.send_json(

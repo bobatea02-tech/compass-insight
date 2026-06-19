@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 llm = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",
-    temperature=0.2,
+    temperature=0.1,
     google_api_key=os.environ.get("GEMINI_API_KEY"),
 )
 
@@ -20,23 +20,36 @@ report_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            """You are a senior software engineer
-writing a dependency health report for a development team.
-You are direct, specific, and technical. Never use filler phrases.
-Format your response in exactly three sections:
+            """You are a senior software engineer writing
+a concise dependency health report for a development team.
+
+Rules:
+- Be direct and specific. No filler phrases like
+  "it's worth noting" or "it's important to mention"
+- Always reference exact numbers from the data
+- Name specific packages in recommendations
+- If no high-risk packages exist, say so clearly
+- Maximum 300 words total
+
+Format exactly as:
 
 ## Executive Summary
-Two sentences maximum. State the most critical finding and
-overall risk level.
+One sentence stating overall risk level and the
+single most critical finding.
 
-## Package Analysis
-One paragraph per high-risk or at-risk package only.
-Reference specific behavioral signals. Name exact numbers.
-Do not write about healthy packages.
+## Risk Analysis
+One short paragraph per Dying or At Risk package only.
+Include: risk score, top signal with exact value,
+and whether similar incidents were found.
+Skip healthy packages entirely.
 
-## Recommendations
-A numbered list of 3-5 specific, actionable steps.
-Each step names a specific package and a specific action.""",
+## Action Items
+Numbered list, 3-5 items maximum.
+Each item: specific package name + specific action.
+Example: "1. Replace event-stream (score: 84) —
+single maintainer with 97% commit concentration.
+Evaluate mitt or eventemitter3 as alternatives."
+""",
         ),
         (
             "human",
@@ -101,12 +114,12 @@ async def generate_report_stream(
 Analysis of {manifest_name} ({package_count} packages) identified
 {len(high_risk)} critical and {len(at_risk)} at-risk dependencies.
 
-## Package Analysis
+## Risk Analysis
 """
         for name, result in high_risk:
             fallback += f"\n{format_package_summary(name, result)}\n"
 
-        fallback += "\n## Recommendations\n"
+        fallback += "\n## Action Items\n"
         for i, (name, _) in enumerate(high_risk[:3], 1):
             fallback += f"{i}. Evaluate alternatives to {name} immediately.\n"
 

@@ -15,7 +15,7 @@ _COLLECTION_METADATA = {
     "hnsw:construction_ef": 100,
     "hnsw:M": 16,
 }
-_SIMILARITY_THRESHOLD = 0.30
+_SIMILARITY_THRESHOLD = 0.40
 _BATCH_SIZE = 50
 
 client = chromadb.PersistentClient(path=_CHROMA_PATH)

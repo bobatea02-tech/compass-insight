@@ -143,7 +143,7 @@ async def save_analysis(
 
 
 async def get_history() -> list[dict[str, Any]]:
-    """Return the last 10 completed analyses with per-package summaries."""
+    """Return the last 10 completed analyses with summary metadata."""
     async with async_session() as session:
         result = await session.execute(
             select(Analysis).order_by(Analysis.created_at.desc()).limit(10)
@@ -157,26 +157,77 @@ async def get_history() -> list[dict[str, Any]]:
                     PackageResult.analysis_id == analysis.id
                 )
             )
-            packages = [
-                {
-                    "package_name": pkg.package_name,
-                    "risk_class": pkg.risk_class,
-                    "risk_score": pkg.risk_score,
-                    "github_repo": pkg.github_repo,
-                }
-                for pkg in pkg_result.scalars().all()
+            packages = list(pkg_result.scalars().all())
+
+            top_dying_package: str | None = None
+            top_dying_score: int | None = None
+            dying_packages = [
+                p for p in packages if p.risk_class == "Dying" and p.risk_score
             ]
+            if dying_packages:
+                top = max(dying_packages, key=lambda p: p.risk_score or 0)
+                top_dying_package = top.package_name
+                top_dying_score = top.risk_score
+
             history.append(
                 {
                     "id": str(analysis.id),
                     "manifest_name": analysis.manifest_name,
+                    "ecosystem": analysis.ecosystem,
                     "package_count": analysis.package_count,
                     "healthy_count": analysis.healthy_count,
                     "at_risk_count": analysis.at_risk_count,
                     "dying_count": analysis.dying_count,
                     "created_at": analysis.created_at.isoformat(),
-                    "packages": packages,
+                    "top_dying_package": top_dying_package,
+                    "top_dying_score": top_dying_score,
                 }
             )
 
         return history
+
+
+async def get_analysis_by_id(analysis_id: str) -> dict[str, Any] | None:
+    """Return full package-level results for a single analysis run."""
+    try:
+        analysis_uuid = uuid.UUID(analysis_id)
+    except ValueError:
+        return None
+
+    async with async_session() as session:
+        result = await session.execute(
+            select(Analysis).where(Analysis.id == analysis_uuid)
+        )
+        analysis = result.scalars().first()
+        if not analysis:
+            return None
+
+        pkg_result = await session.execute(
+            select(PackageResult).where(PackageResult.analysis_id == analysis.id)
+        )
+        packages = [
+            {
+                "package_name": pkg.package_name,
+                "github_repo": pkg.github_repo,
+                "risk_score": pkg.risk_score,
+                "risk_class": pkg.risk_class,
+                "confidence": float(pkg.confidence) if pkg.confidence else None,
+                "top_signals": pkg.top_signals,
+                "shap_chart_data": pkg.shap_chart_data,
+                "incidents": pkg.incidents,
+            }
+            for pkg in pkg_result.scalars().all()
+        ]
+
+        return {
+            "id": str(analysis.id),
+            "manifest_name": analysis.manifest_name,
+            "ecosystem": analysis.ecosystem,
+            "package_count": analysis.package_count,
+            "healthy_count": analysis.healthy_count,
+            "at_risk_count": analysis.at_risk_count,
+            "dying_count": analysis.dying_count,
+            "skipped_count": analysis.skipped_count,
+            "created_at": analysis.created_at.isoformat(),
+            "packages": packages,
+        }

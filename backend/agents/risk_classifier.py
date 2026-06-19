@@ -97,6 +97,8 @@ def classify_package(signals: dict[str, float]) -> dict:
 
     risk_score = round(float(probabilities[1] * 50 + probabilities[2] * 100))
 
+    low_confidence = float(probabilities[predicted_class]) < 0.60
+
     sorted_features = shap_series.abs().sort_values(ascending=False).index[:10]
     shap_chart_data = [
         {
@@ -119,4 +121,5 @@ def classify_package(signals: dict[str, float]) -> dict:
         },
         "top_signals": top_signals,
         "shap_chart_data": shap_chart_data,
+        "low_confidence": low_confidence,
     }

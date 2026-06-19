@@ -37,5 +37,8 @@ https://*.lovable.app
 os.environ.get("FRONTEND_URL", "")
 
 ## Current task
-Day 6: Docker + deployment — Dockerfile, docker-compose,
-GET /package endpoint, .gitignore, Railway-ready config
+Backend improvements: Unknown package fallback,
+ecosystem auto-detection, batch caching, better
+incident quality, rate limit handling, confidence
+threshold, improved report prompt, history endpoint
+enrichment
