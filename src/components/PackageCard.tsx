@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function PackageCard({ pkg, selected, analyzing, colIndex = 0, onClick }: Props) {
-  const cls = pkg.result?.risk_class ?? 'Unknown';
+  const cls: keyof typeof RISK_COLORS = (pkg.result?.risk_class && RISK_COLORS[pkg.result.risk_class]) ? pkg.result.risk_class : 'Unknown';
   const c = RISK_COLORS[cls];
   const score = pkg.result?.risk_score;
   const loading = pkg.loading || !pkg.result;
