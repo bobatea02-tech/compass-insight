@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function PackageHeader({ name, result }: Props) {
-  const c = RISK_COLORS[result.risk_class];
+  const c = RISK_COLORS[result.risk_class] ?? RISK_COLORS.Unknown;
   const incidentCount = result.incidents.length;
   const label = displayRiskClass(result.risk_class);
   const [copied, setCopied] = useState(false);
