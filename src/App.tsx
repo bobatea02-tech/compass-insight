@@ -120,6 +120,8 @@ export function App() {
   );
 
   const conn = useWebSocket(handleMessage);
+  const health = useBackendHealth();
+
 
   const stats = useMemo(() => {
     let healthy = 0, atRisk = 0, dying = 0, unresolved = 0;
