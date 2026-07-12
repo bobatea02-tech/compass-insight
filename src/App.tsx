@@ -10,8 +10,10 @@ import { IncidentCard } from '@/components/IncidentCard';
 import { StreamingReport } from '@/components/StreamingReport';
 import { HistoryPanel } from '@/components/HistoryPanel';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useBackendHealth } from '@/hooks/useBackendHealth';
 import type { PackageResult, PackageState, WsMessage } from '@/types/compass';
 import { sortPackages } from '@/types/compass';
+
 
 export function App() {
   const [fileName, setFileName] = useState<string | null>(null);
@@ -186,12 +188,13 @@ export function App() {
       style={{ background: '#070707', color: '#F5F5F5', fontFamily: 'Inter, system-ui, sans-serif' }}
     >
       <TopBar
-        status={conn.status}
+        status={health}
         fileName={fileName}
         packageCount={filePackages.length}
         onNewScan={handleNewScan}
         onOpenHistory={() => setHistoryOpen(true)}
       />
+
       <div className="flex flex-1 min-h-0">
         <div
           className="w-[380px] shrink-0 overflow-y-auto p-4 print-hide"
