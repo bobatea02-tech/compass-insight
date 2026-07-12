@@ -10,13 +10,20 @@ function getApiUrl(): string | null {
   return null;
 }
 
-export function useBackendHealth(intervalMs = 15000): HealthStatus {
-  const [status, setStatus] = useState<HealthStatus>('connecting');
+/**
+ * Optimistic backend health.
+ * - No backend configured (frontend-only / demo mode): always "open".
+ * - Backend configured: poll /health. Only mark "closed" when the server
+ *   explicitly responds with a non-OK status. Network errors keep the last
+ *   good state so transient failures don't flip the pill offline.
+ */
+export function useBackendHealth(intervalMs = 20000): HealthStatus {
+  const base = getApiUrl();
+  const [status, setStatus] = useState<HealthStatus>('open');
 
   useEffect(() => {
-    const base = getApiUrl();
     if (!base) {
-      setStatus('closed');
+      setStatus('open');
       return;
     }
     let cancelled = false;
@@ -29,9 +36,11 @@ export function useBackendHealth(intervalMs = 15000): HealthStatus {
         const res = await fetch(`${base}/health`, { signal: ctrl.signal, cache: 'no-store' });
         clearTimeout(to);
         if (cancelled) return;
-        setStatus(res.ok ? 'open' : 'closed');
+        if (res.ok) setStatus('open');
+        else setStatus('closed');
       } catch {
-        if (!cancelled) setStatus('closed');
+        // Network error — stay optimistic (frontend still works).
+        if (!cancelled) setStatus((s) => (s === 'closed' ? 'closed' : 'open'));
       } finally {
         if (!cancelled) timer = setTimeout(ping, intervalMs);
       }
@@ -42,7 +51,7 @@ export function useBackendHealth(intervalMs = 15000): HealthStatus {
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [intervalMs]);
+  }, [base, intervalMs]);
 
   return status;
 }
